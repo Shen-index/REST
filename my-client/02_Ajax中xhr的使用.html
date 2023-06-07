@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xhr的使用</title>
+</head>
+
+<body>
+    <h1>AJAX测试</h1>
+    <hr>
+    <button id="btn">点击踢脚</button>
+    <hr>
+    <div class="root">
+
+
+    </div>
+</body>
+<script>
+    const btnEl = document.querySelector("#btn")
+    const rootEl = document.querySelector(".root")
+    btnEl.onclick = () => {
+        // 创建xhr
+        const xhr = new XMLHttpRequest()
+
+
+
+        // 设置请求信息
+        xhr.open("GET", "http://127.0.0.1:3000/students")
+
+        // 发送请求
+        xhr.send()
+
+
+        // 设置响应体的类型
+        xhr.responseType = "json"
+
+
+        // 给xhr对象绑定一个load事件
+        xhr.onload = () => {
+            // console.log(xhr.status); 这里的status和定义路由那个status不是一个东西，那个是数据设置的是否加载成功，这个是表示响应状态码
+
+            /*  
+                读取相应信息
+                    因为地址会出现错误，所以这里要判断它是对的地址才开始打印数据
+
+                    注意：
+                        现在打印的是字符串，这个是不能读出来的，所以我们要装换为对象
+            */
+
+
+            // // 判断路径是否为正确的
+            // if(xhr.status === 200) {
+            //     // const stuList = JSON.parse(xhr.response)
+            //     //  console.log(stuList.status, stuList.data);
+            //     console.log(xhr.response);
+            // }else{
+            //     console.log("地址错误");
+            // }
+
+            //将获取的数据渲染到页面中
+            if (xhr.status === 200) {
+                const result = xhr.response
+                // console.log(xhr.response);
+                
+                // 判断数据是否正确
+                if (result.status === "ok") {
+                    const ulEl = document.createElement("ul")
+                    rootEl.appendChild(ulEl)
+
+                    for (let stu of result.data) {
+                        ulEl.insertAdjacentHTML(
+                            "beforeend", 
+                            `<li>${stu.id}-${stu.name}-${stu.age}-${stu.gender} </li>`
+                            )
+                    }
+
+                }
+
+            } else {
+                console.log("地址错误");
+            }
+        }
+
+    }
+</script>
+
+</html>

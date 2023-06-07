@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        table{
+            border-collapse: collapse;
+            width: 70%;
+        }
+        th,td{
+            font-size: 20px;
+            text-align: center;
+            border: 1px solid red;
+        }
+        caption{
+            font-size: 30px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="root">
+        <h1>请登录</h1>
+        <h2></h2>
+        <form>
+            <div>
+                <input id="username" type="text">
+            </div>
+            <div>
+                <input id="password" type="password">
+            </div>
+            <div>
+                <button id="btn_1" type="button">
+                    提交
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        /*
+            登录验证需要前后验证
+                没有后端验证很容易绕过前端
+
+            解决
+                - 如何让服务器找到客户端的登录状态
+                    - 服务器最好不要存储用户的信息
+                        所以我们就要将信息发送给客户端保存
+                        当客户端访问服务器时，服务器直接将信息发回，服务器就可以根据用户信息来识别用户的身份
+                    - 这样的方式，就算是服务器直接发送客户端，也会有危险
+                        所以要对数据进行加密，加密以后再发送给客户端保存
+                    - 在node里头，可以使用JSONwebetoken包来对数据进行加密
+                        jsonwebtoken（jwt）
+                            通过对json加密后，生成一个web中使用的令牌
+                        使用
+                            安装 
+                                npm i jsonwebtoken
+                            引入
+                                const jwt = require("jsonwebtoken")
+                            
+                            
+                            jwt对数据进行加密
+                            const token = jwt.sign(obj, "hello", {
+                                expiresIn:"1"
+                            })
+                            try{
+                                // 服务器收到客户端的token后,开始解析
+                                const decode = jwt.verify(
+                                    token,  "hello"
+                                )
+                                console.log(decode);
+                            } catch(err) {
+                                console.log("无效的token");
+                                
+                            }
+                            
+
+
+        */ 
+        // 点击提交实现登录功能
+        const btnEl = document.querySelector("#btn_1")
+        const root = document.querySelector(".root")
+
+        function foo() {
+            // 当访问的是需要权限的api时，必须在请求中附加权限的信息
+            // token一般都是通过请求头来发送
+            const token = localStorage.getItem("token")
+            fetch("http://127.0.0.1:3000/students", {
+                headers:{
+                    // "格式"- Bearer xxx 
+                    "Authorization": `Bearer ${token}`
+                }
+            })
+            .then((res) => {
+                if(res.status === 200){
+                    return res.json()
+                }else{
+                    // console.log("请求出错列");
+                    throw new Error("加载失败")
+                }
+            }).then(res => {
+                if(res.status === "ok"){
+                    // 创建一个table
+                    const tableEl = document.createElement("table")
+                    const datadiv = document.querySelector(".data")
+                    datadiv.appendChild(tableEl)
+                    tableEl.insertAdjacentHTML("beforeend", "<caption>学生列表</caption>")
+                    tableEl.insertAdjacentHTML("beforeend", `
+                        <thead>
+                            <tr>
+                                <th>学号</th>    
+                                <th>姓名</th>    
+                                <th>年龄</th>    
+                                <th>性别</th>    
+                            </tr>    
+                        </thead>
+                    `)
+
+                    const tbodyEl = document.createElement("tbody")
+                    tableEl.appendChild(tbodyEl)
+
+                    // 便利数据
+                    for(let stu of res.data){
+                        tbodyEl.insertAdjacentHTML("beforeend",
+                            `<tr>
+                                <td>${stu.id}</td>    
+                                <td>${stu.name}</td>    
+                                <td>${stu.age}</td>    
+                                <td>${stu.gender}</td>    
+                            </tr>`
+                        )
+                    }
+                }
+            })
+            
+            .catch((err) => {
+                console.log(err, "出错列");
+
+            })
+        }
+
+
+        // 判断用户是否登录
+        if(localStorage.getItem("token")) {
+                // 登录成功
+
+            root.innerHTML = `
+                    <h1>欢迎${localStorage.getItem("nickename")}</h1>
+                    <hr>
+                    <button id = "root-btn" onclick = "foo()">加载数据</button>
+                    <button onclick = "localStorage.clear()">退出</button>
+                    <hr>
+                    <div class = "data"></div>
+                `
+        }else{
+             btnEl.onclick = () => {
+            // 获取用户输入的用户名和密码
+            const username = document.querySelector("#username").value
+            const password = document.querySelector("#password").value
+            console.log(username, password);
+
+            // 调用fetch发送请求
+            fetch("http://127.0.0.1:3000/login", {
+                method: "post",
+                headers: {
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify({
+                    username,
+                    password
+                })
+            }).then((res) => {
+                return res.json()
+            }).then((res) => {
+                if (res.status !== "ok") {
+                    throw new Error("用户名或密码错误")
+                }
+                
+               localStorage.setItem("token", res.data.token)
+               localStorage.setItem("nickename", res.data.nickename)
+
+                // 登录成功
+                root.innerHTML = `
+                    <h1>欢迎${localStorage.getItem("nickename")}</h1>
+                    <hr>
+                    <button id = "root-btn" onclick = "foo()">加载数据</button>
+                    <button onclick = "localStorage.clear()">退出</button>
+                    <hr>
+                    <div class = "data"></div>
+                `
+            }).catch((err) => {
+                // 登录失败
+                // console.log("出错咯", err);
+                document.querySelector("h2").innerText = "用户名或密码错误"
+            })
+
+        }
+   
+        }
+
+        </script>
+</body>
+
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        table{
+            border-collapse: collapse;
+            width: 70%;
+        }
+        th,td{
+            font-size: 20px;
+            text-align: center;
+            border: 1px solid red;
+        }
+        caption{
+            font-size: 30px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+   
+            <div>
+                <button id="btn">
+                    提交
+                </button>
+                <button id="btn1" >
+                    取消
+                 </button>
+                 <button id="btn2" >
+                    按钮三
+                 </button>
+            </div>
+    <script>
+        
+/*
+        像这种检查权限验证，设置在中间件，需要用的时候使用这个中间件就可以了
+    
+        终止请求
+            Abort
+            使用方式
+                Fetch()
+                    里面的配置对象有一个signal，他就是配置控制器的
+
+                    
+                    const conter = new AbortController()
+                    fetch("...", signal:conter.signal)
+                        conter.abort()  //abort()是一个终止，拒绝信号
+                    利用定时器conter.abort()
+
+            代码
+                 btnEl.onclick = () => {
+                        // 创建终止条件
+                        const conter = new AbortController()
+                        setTimeout(() => {
+                            conter.abort()
+                        }, 3000)
+                        
+                        fetch("http://127.0.0.1:3000/text", {
+                            signal: conter.signal
+                        })
+                        .then((res) => {
+                            console.log(res);
+                            
+                        }).catch((r) => {
+                            console.log(r);
+                            
+                        })
+                }
+
+
+            第二中方式
+                创建一个按钮
+                    为他做一个单击事件 
+                    单击后调用abort方法就可以了
+                    const conter = new AbortConteroller()
+                    const btn = document.querselect(".btn")
+                    btn.onclick = () => {
+                       conter && conter.abort()//逻辑运算符找false，第一个是错的就不会执行下一个吗，反之一样
+                    }
+            第三种方法
+                    
+
+*/  
+        // 点击提交实现登录功能
+        const btnEl = document.querySelector("#btn")
+        const btnEl1 = document.querySelector("#btn1")
+        const btnEl2 = document.querySelector("#btn2")
+
+        let conter
+        btnEl.onclick = () => {
+            // 创建终止条件
+            conter = new AbortController()
+            // setTimeout(() => {
+            //     conter.abort()
+            // }, 3000)
+            
+            fetch("http://127.0.0.1:3000/text", {
+                
+                signal: conter.signal
+            })
+            .then((res) => {
+                console.log(res);
+                
+            }).catch((r) => {
+                console.log(r);
+                
+            })
+        }
+        btnEl1.onclick = () => {
+           conter && conter.abort()
+        }
+        btnEl2.onclick = async() => {
+          
+           
+          
+           try{
+                const res = await fetch("http://127.0.0.1:3000/students", {
+                    method: "post",
+                    headers: {
+                        "Content-type": "application/json"
+                    },
+                })
+                 const dataEl = await res.json()
+                 console.log(dataEl);
+           }catch(e){
+                console.log("出错了",e);
+                
+           }
+        }
+        </script>
+</body>
+
+</html>

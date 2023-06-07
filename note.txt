@@ -1,0 +1,260 @@
+服务器的结构是基于MVC模式
+    Model -- 数据模型
+    View -- 视图
+    Controller -- 控制器， 它会选择视图来呈现数据
+    - 传统的服务器时直接为客户端放回一个页面
+
+现在的场景是一个应用有多个客户端(client)，像pc，移动，web....
+    - 如果现在的场景使用以前的服务器，那么就要开发多个服务器
+
+
+如何解决
+    传统服务器的流程
+        1.加载数据
+        2.将模型渲染进视图
+    
+    将渲染视图从服务器分离出来,服务器只负责去向客户端返回数据，渲染视图由客户端完成
+        这样也降低了服务器代码的编写，这样分离后，服务器就可以同时为多种客户端提供服务器
+
+    
+
+Rest
+    REpresentational State Transfer
+    - 表示层状态的传输
+    - Rest是一种服务器的设计风格（Rest服务器）
+        特点    
+            - 只返回数据
+    - 服务器和客户端传输数据时使用JSON作为数据格式（优先选择），有其他格式
+    - 请求的方法（路由）
+        GET     加载数据(从服务器加载数据的时候使用)
+            查找
+                思路
+                    1.直接查询路径即可
+                    2.添加成功后提示信息
+
+        POST    新建或添加数据
+            添加
+                思路
+                    1.获取学生的信息
+                    2.定义一个存储信息的对象
+                    3.将新定义的对象作为参数使用push方法
+                    4.添加成功后提示信息
+
+        PUT     添加或修改数据
+            修改
+                - 思路
+                    1.获取数据
+                    2.根据id查找学生
+                    3.找到学生后，将重新输入的值赋值给原先的值
+                        这里也要判断找不到的情况
+
+        PATCH   修改数据
+
+        DELETE  删除数据
+                删除
+                    - 思路
+                        1.获取学生的id
+                            首先删除学生要先拿到学生的id，这里要拿到用户输入的id 
+                        2.遍历数组
+                            - 循环的id等于用户输入的id后，删除这个id
+                            - 删除完成后返回提示
+                                问题
+                                    如果用户输入的值没有，那么就要对应的输入错误信息
+                                解决
+                                    这里如果没有进入for循环，说明用户输入的id值并没有
+                                    在for循环外边使用send返回提示信息
+                                    
+        OPTION  由浏览器自动发送
+    - API（接口）Endpoint（端点）
+        GET /user   向user端口加载数据
+        POST /user   向user端口添加数据
+        PATCH /user    向user端口修改数据
+        PUT /user         向user端口修改数据
+        等等， 这种就是Rest风格的服务器，为的就是分离他们
+
+postman
+    通过它（软件）可以向服务器发送请求，测试API
+
+
+AJAX
+    它是异步的js，数据格式是json
+        他就是发送异步请求的
+        它的作用就是 通过js向服务器发送请求  来加载数据
+
+        - 发送请求方式的方案
+            1.XMLHTTPPrequest（xhr）浏览器原先支持
+            2.Fetch（它是xhr的升级版本）浏览器原先支持！
+            3.Axios（第三方）它在xhr的基础上做了一个封装！！
+
+
+        - XMLHTTPPRequest（xhr）
+            - 目前这种已经不使用了
+            - 创建新的xhr对象，xhr表示请求信息
+                const xhr = new XMLHTTPPRequest()
+            - 设置请求的信息
+                xhr.open("请求方式"，"地址")
+            - 发送请求
+                xhr.send()
+            - 读取响应信息
+                xhr.response    表示响应信息
+                clg(xhr.response)
+                问题
+                    这里读取不到结果？因为这里是异步的，发送和响应不是同步的
+                解决
+                    为xhr绑定load事件
+                        xhr.onload = () => {
+                            // 读取相应信息
+                            console.log(xhr.response);
+                        }
+
+                问题：这里获取的是字符串结果，我们并不能去直接读取，所以这里要类型装换
+                    有两种方式可以装换
+                    方法一
+                    xhr.onload = () => {
+                        const data = JSON.parse(xhr.response)
+                            // 读取响应信息
+                            console.log(data);
+                    }
+                    方法二
+                        在按钮事件里设置它的响应体类型
+                        xhr.responseType = "json"
+
+                        xhr.onload = () => {
+                            // 读取响应信息
+                            console.log(data);
+                        }
+
+            - 从服务器拿到数据后，将数据渲染到页面中
+                这里就使用dom操作即可
+                步骤
+                    1.判断地址是否正确
+                    2.判断数据是否正确，也就是它的令牌码
+                    3.两个都正确以后，创建ul，遍历数组，然后将遍历的结果加入到li当中即可 
+
+
+        Fetch
+            
+            它是xhr的升级版，采用promise API
+            作用是和Ajax是一样的
+            它是原生就支持ajax请求的一种方式
+            它是一个函数
+
+            - 使用方式
+                直接使用这个函数即可
+                 fetch("http://127.0.0.1:3000/students")
+                    - 参数
+                        - 资源的路径
+                             fetch("http://127.0.0.1:3000/students")
+                        - 配置对象（options）
+                            fetch("http://127.0.0.1:3000/students", {
+                                methods:"请求方式",
+                                headers:{
+                                    "Content-type":"application/json"
+                                }
+                                通过body发送数据时，必须通过请求头来指定数据的类型
+                                body:JSON.stringify({
+                                    name:"白骨精",
+                                    age:16
+                                })
+                            })
+
+
+                读取数据使用then方法
+                    then方法里出的错误都可以向外面抛出，交给catch处理
+                    res.json() 读取json格式的数据，它放回的是一个promise对象，读取promise对象再使用then就可以了
+
+                    代码
+                        fetch("http://127.0.0.1:3000/students")
+                            .then((res) => {
+                                if(res.status === 200){
+                                    return res.json()
+                                }else{
+                                    throw new Error("加载失败")
+                                }
+                            }).then(res => {
+                                 获取到数据后渲染到页面中
+                                        if(res.status === "ok"){
+                                            // 创建一个table
+                                            const tableEl = document.createElement("table")
+                                            rootEl.appendChild(tableEl)
+                                            tableEl.insertAdjacentHTML("beforeend", "<caption>学生列表</caption>")
+                                            tableEl.insertAdjacentHTML("beforeend", `
+                                                <thead>
+                                                    <tr>
+                                                        <th>学号</th>    
+                                                        <th>姓名</th>    
+                                                        <th>年龄</th>    
+                                                        <th>性别</th>    
+                                                    </tr>    
+                                                </thead>
+                                            `)
+
+                                            const tbodyEl = document.createElement("tbody")
+                                            tableEl.appendChild(tbodyEl)
+
+                                            // 便利数据
+                                            for(let stu of res.data){
+                                                tbodyEl.insertAdjacentHTML("beforeend",
+                                                    `<tr>
+                                                        <td>${stu.id}</td>    
+                                                        <td>${stu.name}</td>    
+                                                        <td>${stu.age}</td>    
+                                                        <td>${stu.gender}</td>    
+                                                    </tr>`
+                                                )
+                                            }
+                                    }                             
+                            })
+                            
+                            .catch((err) => {
+                                console.log(err, "出错列");
+
+                        })
+
+                注意
+                    当我们使用了ajax后，form里面一些active，methor这些就不用设置了
+                        因为我们的fetch已经都设置了
+
+        浏览器错误
+            - CORS（跨域资源共享）
+                - 跨域请求
+                    如果两个网站的完整域名不同 
+                        a:http://haha
+                        b:http://hahaha
+                    跨域会检查三个东西
+                        协议 域名 端口号
+                        这三如果有一个不同，就是跨域了
+                    当通过AJAX去发送跨域请求时
+                        浏览器为了服务器安全，会阻止js读取到服务器的数据
+                跨域为了保护服务器
+
+                - 解决
+                    - 在服务器中设置允许跨域的头
+                         Access-Control-Allow-Origin
+                        - 设置响应头
+                            res.setHeader("Access-Control-Allow-Origin", "*")
+                            Access-Control-Allow-Origin 设置指定值时只能设置一个
+                                - Methods    设置允许请求的方式
+                                    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT")
+
+                                - Headers    设置传递的请求头
+                                    res.setHeader("Access-Control-Allow-Headers", "Content-type")
+
+                            * 号表示什么都可
+                            也可以单独设置地址，这样就只有一个可以啦
+                            如果要设置多个地址
+                                第二个参数设置为数组，数组里头为需要设置的地址，这样动态设置它
+                    - 这个设置响应头的方式写在中间件里头
+                        app.use((req, res, next) => {
+                            // 设置响应头
+                            res.setHeader("Access-Control-Allow-Origin", "*");
+                            res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT，DElEET");
+                            res.setHeader("Access-Control-Allow-Headers", "Content-type");
+
+                            next()
+                            });
+
+
+
+
+    

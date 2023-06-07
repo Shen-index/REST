@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网页</title>
+</head>
+<body>
+    <h1>客户端</h1>
+    <!-- 把服务器的数据在浏览器中显示 -->
+    <button id="btn">
+        点我加载数据
+    </button>
+    <script>
+        // 点击按钮，加载服务器的数据
+        const btn = document.getElementById("btn");
+
+        btn.onclick = () => {
+            /*
+                现在就要向服务器发送请求
+
+                使用AJAX向服务器发送请求
+                AJAX
+                    它是异步的js，数据格式是json
+                    他就是发送异步请求的
+                    它的作用就是 通过js向服务器发送请求  来加载数据
+
+                    - 发送的方案
+                        1.XMLHTTPPrequest（xhr）浏览器原先支持
+                        2.Fetch（它是xhr的升级版本）浏览器原先支持！
+                        3.Axios（第三方）它在xhr的基础上做了一个封装！！
+            */ 
+        //    创建xhr
+            const xhr = new XMLHttpRequest()
+
+
+            // 设置请求信息
+            // 请求方式和地址
+            xhr.open("GET", "http://127.0.0.1:3000/students")
+
+            // 发送请求
+            xhr.send()
+        }
+    </script>
+</body>
+</html>
