@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  
+</head>
+
+<body>
+            <button class="btn">post按钮</button>
+            <button class="btn1">get按钮1</button>
+
+    <script>
+        const btnEl = document.querySelector(".btn")
+        const btnEl1 = document.querySelector(".btn1")
+        btnEl.onclick = () => {
+            // // 点击后发送请求
+            // // axios(config)
+            axios({
+                method:"post",
+                baseURL:"",
+                url:"http://localhost:3000/students",
+                
+                // 请求参数
+                data:{
+                    name:"悟空",
+                    age: 18,
+                    gender:"男",
+                },
+                transformRequest:[
+                    function(data,headers){
+                        // console.log(1);
+                        // console.log(headers);
+                        data.name = "八戒"
+                        headers["Content-Type"] = "application/json"
+                        return data
+                    },
+                    function(data,headers){
+                        // 这里接收上面那个函数的参数
+                        console.log(headers);
+                        // 最后一个参数必须是返回的一个字符串，数据才有效
+                        return JSON.stringify(data)
+                    }
+                ]
+
+            }).then((result)=>{
+                    console.log(result.data);
+                    /*
+                        data: 读取参数（服务器放回的数据）
+                            它直接装换为了json对象
+                    */ 
+                }).catch((e) => {
+                    console.log(e,"出错列");
+                    
+                })
+            
+        }
+        btnEl1.onclick = () => {
+            // // 点击后发送请求
+            // // axios(config)
+            axios({
+                method:"get",
+                url:"http://localhost:3000/students",
+                // 请求参数
+               
+            }).then((result)=>{
+                    console.log(result.data);
+                    /*
+                        data: 读取参数（服务器放回的数据）
+                            它直接装换为了json对象
+                        axios只会在响应为2xx的时候才会返回参数
+                    */ 
+                }).catch((e) => {
+                    console.log(e,"出错列");
+                    
+                })
+            
+        }
+        // console.log(axios);
+        
+    </script>
+</body>
+</html>

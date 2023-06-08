@@ -1,0 +1,126 @@
+Axios
+    它是一个基于promise网络请求库，在node和浏览器都可以用
+    它是xhr的一个再次封装
+    使用方式
+        - node中使用
+            npm i Axios
+        - 在srcipt中引入
+            <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        - 在需要使用请求调用axios({...})
+            代码
+                 axios({
+                    method:"post",
+                    url:"http://localhost:3000/students",
+                    // 请求参数
+                    data:{
+                        name:"悟空",
+                        age: 18,
+                        gender:"男"
+                    }
+                })
+                
+                - 配置参数
+                    !!url:    服务器请求的地址
+                    baseURL:    指定请求地址的前缀
+                    method:         请求的方式
+                    data:           请求体
+                    headers:        指定请求头
+                    transformRequest:[]   处理请求数据也就是data，使用数组作为参数
+                                            可以接收多个函数，依次执行
+                                                函数执行时，会接收data和headers两个参数
+                    params：{}
+                        它是指定查询字符串的
+                    timeout:
+                        它是指一个过期时间
+                    signal
+                        用来终止请求
+        - 调用参数使用then
+
+    它和fetch的区别
+        不用写json去装换了
+        读结果也会自动装换json
+        它在then中只会在响应码为300以内才会走then
+    
+    Axios的响应结构
+        data
+            服务器提供的响应
+        status
+            响应的状态码
+        statusText  
+            响应http状态信息
+        config
+            请求的信息
+        request
+            生成响应请求
+
+    Axios的默认配置
+        axios.defaults.baseURL = "http://localhost:3000"
+            设置默认地址，这样所有的请求都会带着这个地址
+        axios.defaults.headers.common["Authorization"] = AUTh_TOKEN 
+            common:所有的请求通用
+        
+
+        axios({
+                method:"post",
+                url:"students",
+                data:{
+                    name:"悟空",
+                    age: 18,
+                    gender:"男",
+                },
+            }).then((result)=>{
+                    console.log(result.data);
+                }).catch((e) => {
+                    console.log(e,"出错列");
+                })
+            
+        }
+        
+    axios实例
+        问题
+            例如需要多向多个端口发请求
+        解决
+            使用axios.create({
+            })
+            axios实例就是一个副本，它和axios作用一样
+                const btnEl = document.querySelector(".btn")
+                // 定义默认配置
+                axios.defaults.baseURL = "http://localhost:3000"
+                const instance = axios.create()
+                btnEl.onclick = () => {
+                    instance
+                    .get("students")
+                    .then((result) => {
+                        console.log(result);
+                        
+                    }).catch((r) => {
+                        console.log(r);
+                        
+                    })
+                }
+            如果需要更改端口
+                使用axios.create({
+                    baseURL:"http://localhost:4000"
+                    })
+
+    axios拦截器
+        它像中间件，拦截请求和拦截响应，然后再请求发送前和响应读取前来处理数据
+            // 添加请求拦截器
+        axios.interceptors.request.use(function (config) {
+            // 在发送请求之前做些什么
+            return config;
+        }, function (error) {
+            // 对请求错误做些什么
+            return Promise.reject(error);
+        });
+
+        // 添加响应拦截器
+        axios.interceptors.response.use(function (response) {
+            // 2xx 范围内的状态码都会触发该函数。
+            // 对响应数据做点什么
+            return response;
+        }, function (error) {
+            // 超出 2xx 范围的状态码都会触发该函数。
+            // 对响应错误做点什么
+            return Promise.reject(error);
+        });
